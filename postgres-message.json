@@ -1,0 +1,36 @@
+{
+    "before": null,
+    "after": {
+        "product_id": 7,
+        "product_name": "Mechanical Keyboard",
+        "category": "Electronics",
+        "description": "RGB mechanical keyboard",
+        "price": 79.99,
+        "stock_quantity": 100,
+        "supplier_name": "KeyTech Co",
+        "status": "ACTIVE",
+        "created_at": "2025-12-11T23:18:56.240211Z",
+        "updated_at": "2025-12-11T23:19:29.237323Z"
+    },
+    "source": {
+        "version": "3.3.2.Final",
+        "connector": "postgresql",
+        "name": "postgres",
+        "ts_ms": 1765469969237,
+        "snapshot": "false",
+        "db": "cdcdb",
+        "sequence": "[\"26797080\",\"26797192\"]",
+        "ts_us": 1765469969237774,
+        "ts_ns": 1765469969237774000,
+        "schema": "datauser",
+        "table": "products",
+        "txId": 765,
+        "lsn": 26797192,
+        "xmin": null
+    },
+    "transaction": null,
+    "op": "u",
+    "ts_ms": 1765469969326,
+    "ts_us": 1765469969326281,
+    "ts_ns": 1765469969326281292
+}
