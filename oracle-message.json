@@ -1,64 +1,145 @@
 {
-    "before": {
-        "CUSTOMER_ID": 4.0,
+    "schema": {
+        "type": "struct",
+        "fields": [
+            {
+                "type": "double",
+                "optional": false,
+                "field": "CUSTOMER_ID"
+            },
+            {
+                "type": "string",
+                "optional": false,
+                "field": "FIRST_NAME"
+            },
+            {
+                "type": "string",
+                "optional": false,
+                "field": "LAST_NAME"
+            },
+            {
+                "type": "string",
+                "optional": false,
+                "field": "EMAIL"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "field": "PHONE"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "field": "ADDRESS"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "field": "CITY"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "field": "COUNTRY"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "name": "io.debezium.time.IsoTimestamp",
+                "version": 1,
+                "field": "REGISTRATION_DATE"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "default": "ACTIVE",
+                "field": "STATUS"
+            },
+            {
+                "type": "double",
+                "optional": true,
+                "default": 0.0,
+                "field": "CREDIT_LIMIT"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "name": "io.debezium.time.IsoTimestamp",
+                "version": 1,
+                "field": "CREATED_AT"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "name": "io.debezium.time.IsoTimestamp",
+                "version": 1,
+                "field": "UPDATED_AT"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "field": "__deleted"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "field": "__op"
+            },
+            {
+                "type": "int64",
+                "optional": true,
+                "field": "__ts_ns"
+            },
+            {
+                "type": "int64",
+                "optional": true,
+                "field": "__source_ts_ns"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "field": "__source_db"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "field": "__source_schema"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "field": "__source_table"
+            },
+            {
+                "type": "string",
+                "optional": true,
+                "field": "__source_scn"
+            }
+        ],
+        "optional": false,
+        "name": "oracle.DATAUSER.CUSTOMERS.Value"
+    },
+    "payload": {
+        "CUSTOMER_ID": 5.0,
         "FIRST_NAME": "John",
         "LAST_NAME": "Doe",
-        "EMAIL": "john.doe.2@example.com",
+        "EMAIL": "john.doe.4@example.com",
         "PHONE": "+1-555-0123",
         "ADDRESS": null,
         "CITY": "New York",
         "COUNTRY": "USA",
-        "REGISTRATION_DATE": "2025-12-11T10:26:42Z",
+        "REGISTRATION_DATE": "2025-12-12T08:50:24Z",
         "STATUS": "ACTIVE",
         "CREDIT_LIMIT": 0.0,
-        "CREATED_AT": "2025-12-11T17:26:42.821863Z",
-        "UPDATED_AT": "2025-12-11T17:26:42.821863Z"
-    },
-    "after": {
-        "CUSTOMER_ID": 4.0,
-        "FIRST_NAME": "John",
-        "LAST_NAME": "Doe",
-        "EMAIL": "john.doe.2@example.com",
-        "PHONE": "+1-555-0123",
-        "ADDRESS": null,
-        "CITY": "New York",
-        "COUNTRY": "USA",
-        "REGISTRATION_DATE": "2025-12-11T10:26:42Z",
-        "STATUS": "ACTIVE",
-        "CREDIT_LIMIT": 7000.0,
-        "CREATED_AT": "2025-12-11T17:26:42.821863Z",
-        "UPDATED_AT": "2025-12-11T21:54:56.442694Z"
-    },
-    "source": {
-        "version": "3.3.2.Final",
-        "connector": "oracle",
-        "name": "oracle",
-        "ts_ms": 1765464898000,
-        "snapshot": "false",
-        "db": "XEPDB1",
-        "sequence": null,
-        "ts_us": 1765464898000000,
-        "ts_ns": 1765464898000000000,
-        "schema": "DATAUSER",
-        "table": "CUSTOMERS",
-        "txId": "01001600a7020000",
-        "scn": "2896490",
-        "commit_scn": "2896491",
-        "lcr_position": null,
-        "rs_id": "0x000013.0000076e.0044",
-        "ssn": 0,
-        "redo_thread": 1,
-        "user_name": "DATAUSER",
-        "redo_sql": null,
-        "row_id": "AAAShMAAMAAAACDAAA",
-        "commit_ts_ms": 1765464898000,
-        "start_scn": "2896490",
-        "start_ts_ms": 1765464898000,
-        "txSeq": 1
-    },
-    "transaction": null,
-    "op": "u",
-    "ts_ms": 1765464899183,
-    "ts_us": 1765464899183048,
-    "ts_ns": 1765464899183048054
+        "CREATED_AT": "2025-12-12T15:50:24.609081Z",
+        "UPDATED_AT": "2025-12-12T15:50:24.609081Z",
+        "__deleted": "false",
+        "__op": "c",
+        "__ts_ns": 1765529427098149945,
+        "__source_ts_ns": 1765529425000000000,
+        "__source_db": "XEPDB1",
+        "__source_schema": "DATAUSER",
+        "__source_table": "CUSTOMERS",
+        "__source_scn": "2874025"
+    }
 }
