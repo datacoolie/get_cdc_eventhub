@@ -5,18 +5,13 @@
 -- ============================================
 
 -- ============================================
--- STEP 1: Create Users
+-- PART 1: DATA USER SETUP
 -- ============================================
+
 -- Create datauser for application data operations
-CREATE USER datauser WITH PASSWORD 'DataPassword123';
+-- CREATE USER datauser WITH PASSWORD 'DataPassword123';
 
--- cdcuser (created by docker-compose) is used for CDC/replication only
--- Grant replication permission to cdcuser
-ALTER USER cdcuser WITH REPLICATION;
-
--- ============================================
--- STEP 2: Create Schema (owned by datauser)
--- ============================================
+-- Create Schema (owned by datauser)
 CREATE SCHEMA IF NOT EXISTS datauser AUTHORIZATION datauser;
 
 -- Set search path
@@ -25,10 +20,7 @@ SET search_path TO datauser, public;
 -- Switch to datauser for creating tables and data
 SET ROLE datauser;
 
--- ============================================
--- STEP 3: Create Sample Tables
--- ============================================
-
+-- Create Sample Tables
 -- Sample Table 1: PRODUCTS
 CREATE TABLE datauser.products (
     product_id SERIAL PRIMARY KEY,
@@ -59,9 +51,7 @@ CREATE TABLE datauser.inventory_transactions (
         REFERENCES datauser.products(product_id)
 );
 
--- ============================================
--- STEP 4: Create Indexes
--- ============================================
+-- Create Indexes
 CREATE INDEX idx_products_category ON datauser.products(category);
 CREATE INDEX idx_products_status ON datauser.products(status);
 CREATE INDEX idx_products_created ON datauser.products(created_at);
@@ -70,9 +60,7 @@ CREATE INDEX idx_transactions_product ON datauser.inventory_transactions(product
 CREATE INDEX idx_transactions_type ON datauser.inventory_transactions(transaction_type);
 CREATE INDEX idx_transactions_date ON datauser.inventory_transactions(transaction_date);
 
--- ============================================
--- STEP 5: Create Trigger for updated_at
--- ============================================
+-- Create Trigger for updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -86,11 +74,7 @@ BEFORE UPDATE ON datauser.products
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
--- ============================================
--- STEP 6: Insert Sample Data
--- ============================================
-
--- Insert sample products
+-- Insert Sample Data
 INSERT INTO datauser.products (
     product_name, category, description, price, stock_quantity, supplier_name, status
 ) VALUES 
@@ -100,7 +84,6 @@ INSERT INTO datauser.products (
     ('USB-C Cable', 'Electronics', '6ft USB-C charging cable', 19.99, 150, 'Cable World', 'ACTIVE'),
     ('Standing Desk', 'Furniture', 'Adjustable height standing desk', 599.99, 15, 'Furniture Plus', 'ACTIVE');
 
--- Insert sample inventory transactions
 INSERT INTO datauser.inventory_transactions (
     product_id, transaction_type, quantity, reference_number, notes, performed_by
 ) VALUES 
@@ -111,11 +94,26 @@ INSERT INTO datauser.inventory_transactions (
     (2, 'OUT', 10, 'SO-2025-002', 'Customer order', 'sales_team');
 
 -- ============================================
--- STEP 7: Setup Replication Identity
+-- PART 2: CDC AND REPLICATION SETUP
 -- ============================================
--- Switch back to superuser for replication setup
+
+-- Switch back to superuser for CDC setup
 RESET ROLE;
 
+-- Create CDC user with replication privileges
+CREATE USER cdcuser WITH REPLICATION LOGIN PASSWORD 'CdcPassword123';
+
+-- Grant minimal read-only permissions to cdcuser for CDC/replication
+GRANT USAGE ON SCHEMA datauser TO cdcuser;
+GRANT SELECT ON ALL TABLES IN SCHEMA datauser TO cdcuser;
+-- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA datauser TO cdcuser;
+
+-- Set default privileges for future tables (read-only for CDC)
+ALTER DEFAULT PRIVILEGES IN SCHEMA datauser GRANT SELECT ON TABLES TO cdcuser;
+-- ALTER DEFAULT PRIVILEGES IN SCHEMA datauser GRANT USAGE, SELECT ON SEQUENCES TO cdcuser;
+
+
+-- Setup Replication Identity
 -- Set REPLICA IDENTITY to FULL for better CDC tracking
 -- This ensures all column values are included in WAL
 -- ALTER TABLE datauser.products REPLICA IDENTITY FULL;
@@ -125,28 +123,12 @@ RESET ROLE;
 ALTER TABLE datauser.products REPLICA IDENTITY DEFAULT;
 ALTER TABLE datauser.inventory_transactions REPLICA IDENTITY DEFAULT;
 
--- ============================================
--- STEP 8: Grant Permissions for CDC User
--- ============================================
--- Grant minimal read-only permissions to cdcuser for CDC/replication
-GRANT USAGE ON SCHEMA datauser TO cdcuser;
-GRANT SELECT ON ALL TABLES IN SCHEMA datauser TO cdcuser;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA datauser TO cdcuser;
-
--- Set default privileges for future tables (read-only for CDC)
-ALTER DEFAULT PRIVILEGES IN SCHEMA datauser 
-    GRANT SELECT ON TABLES TO cdcuser;
-ALTER DEFAULT PRIVILEGES IN SCHEMA datauser 
-    GRANT USAGE, SELECT ON SEQUENCES TO cdcuser;
-
--- ============================================
--- STEP 9: Create Publication for Logical Replication
--- ============================================
--- Create publication for specific tables (owned by datauser)
+-- Create Publication for Logical Replication
 CREATE PUBLICATION dbz_publication FOR TABLE 
     datauser.products,
     datauser.inventory_transactions
-WITH (publish = 'insert,update,delete');
+;
+-- WITH (publish = 'insert,update,delete');
 
 -- ============================================
 -- Setup Complete

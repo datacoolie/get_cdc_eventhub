@@ -1,69 +1,11 @@
 -- ============================================
--- Oracle CDC User Setup and Sample Tables
+-- Oracle Sample Tables
 -- ============================================
--- Script for Oracle XE to setup CDC user and tables
--- c##cdcuser: Common user for CDC operations (CDB level)
--- datauser: Local user for table ownership (PDB level)
--- ============================================
-ALTER SESSION SET CONTAINER = CDB$ROOT;
-
-CREATE TABLESPACE logminer_tbs DATAFILE '/opt/oracle/oradata/XE/logminer_tbs.dbf'
-    SIZE 25M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;
-
+-- Switch to PDB
 ALTER SESSION SET CONTAINER = XEPDB1;
-
-CREATE TABLESPACE logminer_tbs DATAFILE '/opt/oracle/oradata/XE/XEPDB1/logminer_tbs.dbf' 
-    SIZE 25M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;
-
 -- ============================================
--- STEP 1: Create Common CDC User at CDB Root
+-- STEP 1: Create datauser
 -- ============================================
--- Switch to CDB root to create common user
-ALTER SESSION SET CONTAINER = CDB$ROOT;
-
--- ============================================
--- Create local user in pluggable database
-CREATE USER c##cdcuser IDENTIFIED BY CdcPassword123
-    DEFAULT TABLESPACE logminer_tbs
-    QUOTA UNLIMITED ON logminer_tbs
-    CONTAINER=ALL;
-
--- Grant privileges
-GRANT CREATE SESSION TO c##cdcuser CONTAINER=ALL; 
-GRANT SET CONTAINER TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT ON V_$DATABASE to c##cdcuser CONTAINER=ALL; 
-GRANT FLASHBACK ANY TABLE TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT ANY TABLE TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT_CATALOG_ROLE TO c##cdcuser CONTAINER=ALL; 
-GRANT EXECUTE_CATALOG_ROLE TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT ANY TRANSACTION TO c##cdcuser CONTAINER=ALL; 
-GRANT LOGMINING TO c##cdcuser CONTAINER=ALL; 
-
-GRANT CREATE TABLE TO c##cdcuser CONTAINER=ALL; 
-GRANT LOCK ANY TABLE TO c##cdcuser CONTAINER=ALL; 
-GRANT CREATE SEQUENCE TO c##cdcuser CONTAINER=ALL; 
-
-GRANT EXECUTE ON DBMS_LOGMNR TO c##cdcuser CONTAINER=ALL; 
-GRANT EXECUTE ON DBMS_LOGMNR_D TO c##cdcuser CONTAINER=ALL; 
-
-GRANT SELECT ON V_$LOG TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT ON V_$LOG_HISTORY TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT ON V_$LOGMNR_LOGS TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT ON V_$LOGMNR_CONTENTS TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT ON V_$LOGMNR_PARAMETERS TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT ON V_$LOGFILE TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT ON V_$ARCHIVED_LOG TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT ON V_$ARCHIVE_DEST_STATUS TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT ON V_$TRANSACTION TO c##cdcuser CONTAINER=ALL; 
-
-GRANT SELECT ON V_$MYSTAT TO c##cdcuser CONTAINER=ALL; 
-GRANT SELECT ON V_$STATNAME TO c##cdcuser CONTAINER=ALL; 
-
--- ============================================
--- STEP 2: Switch to PDB and Create Data User
--- ============================================
-ALTER SESSION SET CONTAINER = XEPDB1;
-
 -- Create local user for owning tables and data
 CREATE USER datauser IDENTIFIED BY DataPassword123;
 
@@ -78,7 +20,7 @@ GRANT UNLIMITED TABLESPACE TO datauser;
 -- (Will grant specific table access after tables are created)
 
 -- ============================================
--- STEP 3: Create Sample Tables as datauser
+-- STEP 2: Create Sample Tables as datauser
 -- ============================================
 
 -- Sample Table 1: CUSTOMERS
@@ -134,14 +76,7 @@ CACHE 20
 NOCYCLE;
 
 -- ============================================
--- STEP 4: Grant CDC User Access to Tables
--- ============================================
--- Grant c##cdcuser SELECT privileges on datauser's tables
-GRANT SELECT ON datauser.CUSTOMERS TO c##cdcuser;
-GRANT SELECT ON datauser.ORDERS TO c##cdcuser;
-
--- ============================================
--- STEP 5: Create Indexes
+-- STEP 3: Create Indexes
 -- ============================================
 CREATE INDEX idx_customers_status ON datauser.CUSTOMERS(status);
 CREATE INDEX idx_customers_created ON datauser.CUSTOMERS(created_at);
@@ -152,7 +87,7 @@ CREATE INDEX idx_orders_date ON datauser.ORDERS(order_date);
 CREATE INDEX idx_orders_created ON datauser.ORDERS(created_at);
 
 -- ============================================
--- STEP 6: Enable Supplemental Logging on Tables
+-- STEP 4: Enable Supplemental Logging on Tables
 -- ============================================
 -- Enable supplemental logging to capture all column changes
 ALTER TABLE datauser.CUSTOMERS 
@@ -162,7 +97,7 @@ ALTER TABLE datauser.ORDERS
 ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;
 
 -- ============================================
--- STEP 7: Create Triggers for updated_at
+-- STEP 5: Create Triggers for updated_at
 -- ============================================
 CREATE OR REPLACE TRIGGER datauser.trg_customers_update
 BEFORE UPDATE ON datauser.CUSTOMERS
@@ -181,7 +116,7 @@ END;
 /
 
 -- ============================================
--- STEP 8: Insert Sample Data
+-- STEP 6: Insert Sample Data
 -- ============================================
 -- Insert sample customers
 INSERT INTO datauser.CUSTOMERS (
@@ -232,9 +167,81 @@ INSERT INTO datauser.ORDERS (
 
 COMMIT;
 
+
+-- ============================================
+-- Oracle CDC User Setup
+-- ============================================
+-- Switch to CDB root for common user and tablespace setup
+ALTER SESSION SET CONTAINER = CDB$ROOT;
+-- Create Tablespace for CDC User
+CREATE TABLESPACE logminer_tbs DATAFILE '/opt/oracle/oradata/XE/logminer_tbs.dbf'
+    SIZE 25M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;
+
+-- Switch to PDB
+ALTER SESSION SET CONTAINER = XEPDB1;
+-- Create Tablespace in PDB
+CREATE TABLESPACE logminer_tbs DATAFILE '/opt/oracle/oradata/XE/XEPDB1/logminer_tbs.dbf' 
+    SIZE 25M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;
+
+-- ============================================
+-- STEP 1: Create Common CDC User at CDB Root
+-- ============================================
+-- Switch to CDB root to create common user
+ALTER SESSION SET CONTAINER = CDB$ROOT;
+
+-- ============================================
+-- Create local user in pluggable database
+CREATE USER c##cdcuser IDENTIFIED BY CdcPassword123
+    DEFAULT TABLESPACE logminer_tbs
+    QUOTA UNLIMITED ON logminer_tbs
+    CONTAINER=ALL;
+
+-- Grant privileges
+GRANT CREATE SESSION TO c##cdcuser CONTAINER=ALL; 
+GRANT SET CONTAINER TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT ON V_$DATABASE to c##cdcuser CONTAINER=ALL; 
+GRANT FLASHBACK ANY TABLE TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT ANY TABLE TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT_CATALOG_ROLE TO c##cdcuser CONTAINER=ALL; 
+GRANT EXECUTE_CATALOG_ROLE TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT ANY TRANSACTION TO c##cdcuser CONTAINER=ALL; 
+GRANT LOGMINING TO c##cdcuser CONTAINER=ALL; 
+
+GRANT CREATE TABLE TO c##cdcuser CONTAINER=ALL; 
+GRANT LOCK ANY TABLE TO c##cdcuser CONTAINER=ALL; 
+GRANT CREATE SEQUENCE TO c##cdcuser CONTAINER=ALL; 
+
+GRANT EXECUTE ON DBMS_LOGMNR TO c##cdcuser CONTAINER=ALL; 
+GRANT EXECUTE ON DBMS_LOGMNR_D TO c##cdcuser CONTAINER=ALL; 
+
+GRANT SELECT ON V_$LOG TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT ON V_$LOG_HISTORY TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT ON V_$LOGMNR_LOGS TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT ON V_$LOGMNR_CONTENTS TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT ON V_$LOGMNR_PARAMETERS TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT ON V_$LOGFILE TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT ON V_$ARCHIVED_LOG TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT ON V_$ARCHIVE_DEST_STATUS TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT ON V_$TRANSACTION TO c##cdcuser CONTAINER=ALL; 
+
+GRANT SELECT ON V_$MYSTAT TO c##cdcuser CONTAINER=ALL; 
+GRANT SELECT ON V_$STATNAME TO c##cdcuser CONTAINER=ALL;
+
+
+
+-- ============================================
+-- STEP 2: Grant CDC User Access to Tables
+-- ============================================
+-- Switch to PDB
+ALTER SESSION SET CONTAINER = XEPDB1;
+-- Grant c##cdcuser SELECT privileges on datauser's tables
+GRANT SELECT ON datauser.CUSTOMERS TO c##cdcuser;
+GRANT SELECT ON datauser.ORDERS TO c##cdcuser;
+
+
 -- ============================================
 -- Setup Complete
 -- ============================================
 SELECT 'Oracle CDC User Setup Complete!' as status FROM dual;
-SELECT 'CDC User: c##cdcuser' as info FROM dual;
 SELECT 'Data User: datauser' as info FROM dual;
+SELECT 'CDC User: c##cdcuser' as info FROM dual;

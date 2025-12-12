@@ -261,7 +261,10 @@ ARCHIVE LOG LIST;
 ALTER DATABASE ADD SUPPLEMENTAL LOG DATA;
 
 -- Verify supplemental logging is enabled
-SELECT supplemental_log_data_min FROM v$database;
+SELECT supplemental_log_data_min, 
+       supplemental_log_data_pk, 
+       supplemental_log_data_all 
+FROM v$database;
 -- Should return 'YES'
 
 -- Switch to pluggable database
@@ -274,7 +277,7 @@ ALTER TABLE DATAUSER.ORDERS ADD SUPPLEMENTAL LOG DATA (PRIMARY KEY) COLUMNS;
 -- ALTER TABLE DATAUSER.ORDERS ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;
 
 -- Verify table-level supplemental logging
-SELECT table_name, log_group_name, log_group_type 
+SELECT owner, table_name, log_group_name, log_group_type 
 FROM dba_log_groups 
 WHERE owner = 'DATAUSER';
 

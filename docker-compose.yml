@@ -2,24 +2,24 @@ version: '3.8'
 
 services:
   # Oracle Database XE (Express Edition)
-  # oracle:
-  #   image: gvenzl/oracle-xe:latest
-  #   container_name: oracle-cdc
-  #   ports:
-  #     - "1521:1521"
-  #   environment:
-  #     - ORACLE_PASSWORD=OraclePassword123
-  #   volumes:
-  #     - oracle-data:/opt/oracle/oradata
-  #     - ./oracle-init.sql:/container-entrypoint-initdb.d/01-init.sql
-  #   healthcheck:
-  #     test: ["CMD", "healthcheck.sh"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 5
-  #     start_period: 120s
-  #   networks:
-  #     - cdc-network
+  oracle:
+    image: gvenzl/oracle-xe:latest
+    container_name: oracle-cdc
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_PASSWORD=OraclePassword123
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      - ./oracle-init.sql:/container-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    networks:
+      - cdc-network
 
   # PostgreSQL Database with Logical Replication
   postgres:
@@ -28,8 +28,8 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=cdcuser
-      - POSTGRES_PASSWORD=CdcPassword123
+      - POSTGRES_USER=datauser
+      - POSTGRES_PASSWORD=DataPassword123
       - POSTGRES_DB=cdcdb
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -43,7 +43,7 @@ services:
       - "-c"
       - "max_wal_senders=4"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cdcuser -d cdcdb"]
+      test: ["CMD-SHELL", "pg_isready -U datauser -d cdcdb"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -51,28 +51,28 @@ services:
       - cdc-network
 
   # Debezium Server for Oracle CDC
-  # debezium-oracle:
-  #   image: quay.io/debezium/server:3.3.2.Final
-  #   container_name: debezium-oracle
-  #   depends_on:
-  #     oracle:
-  #       condition: service_healthy
-  #   volumes:
-  #     - ./debezium-server/oracle-application.properties:/debezium/config/application.properties
-  #     - debezium-oracle-offset-storage:/debezium/data
-  #   environment:
-  #     - JAVA_OPTS=-Xms512m -Xmx2g
-  #   env_file:
-  #     - ./debezium-server/.env
-  #   networks:
-  #     - cdc-network
-  #   # restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:8080/q/health || exit 1"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 60s
+  debezium-oracle:
+    image: quay.io/debezium/server:3.3.2.Final
+    container_name: debezium-oracle
+    depends_on:
+      oracle:
+        condition: service_healthy
+    volumes:
+      - ./debezium-server/oracle-application.properties:/debezium/config/application.properties
+      - debezium-oracle-offset-storage:/debezium/data
+    environment:
+      - JAVA_OPTS=-Xms512m -Xmx2g
+    env_file:
+      - ./debezium-server/.env
+    networks:
+      - cdc-network
+    # restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/q/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   # Debezium Server for PostgreSQL CDC
   debezium-postgres:
