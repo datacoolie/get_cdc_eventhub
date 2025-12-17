@@ -11,6 +11,7 @@ services:
       - ORACLE_PASSWORD=OraclePassword123
     volumes:
       - oracle-data:/opt/oracle/oradata
+      - oracle-archive:/opt/oracle/homes/OraDBHome21cXE/dbs  # Add this volume for archive logs
       - ./oracle-init.sql:/container-entrypoint-initdb.d/01-init.sql
     healthcheck:
       test: ["CMD", "healthcheck.sh"]
@@ -58,8 +59,9 @@ services:
       oracle:
         condition: service_healthy
     volumes:
-      - ./debezium-server/oracle-application.properties:/debezium/config/application.properties
       - debezium-oracle-offset-storage:/debezium/data
+      - debezium-oracle-config-storage:/debezium/config
+      - ./debezium-server/oracle-application.properties:/debezium/config/application.properties
     environment:
       - JAVA_OPTS=-Xms512m -Xmx2g
     env_file:
@@ -82,8 +84,9 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./debezium-server/postgres-application.properties:/debezium/config/application.properties
       - debezium-postgres-offset-storage:/debezium/data
+      - debezium-postgres-config-storage:/debezium/config
+      - ./debezium-server/postgres-application.properties:/debezium/config/application.properties
     environment:
       - JAVA_OPTS=-Xms256m -Xmx1g
     env_file:
@@ -100,9 +103,12 @@ services:
 
 volumes:
   oracle-data:
+  oracle-archive:
   postgres-data:
   debezium-oracle-offset-storage:
+  debezium-oracle-config-storage:
   debezium-postgres-offset-storage:
+  debezium-postgres-config-storage:
 
 networks:
   cdc-network:

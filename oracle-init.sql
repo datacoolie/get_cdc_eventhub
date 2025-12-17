@@ -90,11 +90,9 @@ CREATE INDEX idx_orders_created ON datauser.ORDERS(created_at);
 -- STEP 4: Enable Supplemental Logging on Tables
 -- ============================================
 -- Enable supplemental logging to capture all column changes
-ALTER TABLE datauser.CUSTOMERS 
-ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;
+-- ALTER TABLE datauser.CUSTOMERS ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;
 
-ALTER TABLE datauser.ORDERS 
-ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;
+-- ALTER TABLE datauser.ORDERS ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;
 
 -- ============================================
 -- STEP 5: Create Triggers for updated_at

@@ -1,0 +1,4 @@
+psycopg2-binary>=2.9.6
+oracledb>=1.1.0
+Faker>=18.0.0
+python-dotenv>=1.0.0
