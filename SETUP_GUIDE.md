@@ -173,11 +173,47 @@ debezium.sink.eventhubs.hubname=${POSTGRES_EVENTHUB_NAME}
 debezium.sink.eventhubs.connectionstring=${POSTGRES_EVENTHUBS_CONNECTION_STRING:...}
 ```
 
-**Data Format Configuration (JSON)**:
+**Data Format Configuration**:
+
+Debezium Server supports three data formats:
+
+**1. JSON Format (default)**:
 ```properties
-debezium.format.key=json
 debezium.format.value=json
-debezium.format.json.schemas.enable=false
+debezium.format.schemas.enable=false
+```
+
+**2. Avro Format**:
+```properties
+debezium.format.value=avro
+```
+
+**3. CloudEvents Format**:
+```properties
+debezium.format.value=cloudevents
+# Optional: customize CloudEvents metadata
+debezium.format.cloudevents.metadata.source=my-cdc-system
+# Data serializer type for CloudEvents data field (json or avro)
+debezium.format.cloudevents.data.serializer.type=json
+```
+
+CloudEvents is a CNCF specification for describing event data in a common way. It wraps Debezium events with standard attributes:
+- `id`: Unique event identifier
+- `source`: Event source (topic name)
+- `specversion`: CloudEvents specification version (1.0)
+- `type`: Event type (e.g., `io.debezium.connector.postgresql.datachangeevent`)
+- `datacontenttype`: Content type (e.g., `application/json`)
+- `time`: Event timestamp
+- `data`: The actual Debezium event payload
+
+See example CloudEvents messages in `oracle-cloudevents-message.json` and `postgres-cloudevents-message.json`.
+
+To switch between formats, update the `DATA_FORMAT` variable in `.env`:
+```properties
+# Options: json, avro, cloudevents
+DATA_FORMAT=json
+# DATA_FORMAT=avro
+# DATA_FORMAT=cloudevents
 ```
 
 **Topic Naming**:
