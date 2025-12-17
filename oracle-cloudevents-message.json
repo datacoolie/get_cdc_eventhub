@@ -14,9 +14,8 @@
     "iodebeziumdb": "XEPDB1",
     "iodebeziumschema": "DATAUSER",
     "iodebeziumtable": "CUSTOMERS",
-    "iodebeziumtxId": "040012000a030000",
-    "iodebeziumlsn": "3368005",
     "iodebeziumtxid": "040012000a030000",
+    "iodebeziumscn": "3368005",
     "data": {
         "before": {
             "CUSTOMER_ID": 127.0,
