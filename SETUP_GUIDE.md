@@ -191,8 +191,8 @@ debezium.format.value=avro
 **3. CloudEvents Format**:
 ```properties
 debezium.format.value=cloudevents
-# Optional: customize CloudEvents metadata
-debezium.format.cloudevents.metadata.source=my-cdc-system
+# Optional: customize CloudEvents source name
+debezium.format.cloudevents.source.name=my-cdc-system
 # Data serializer type for CloudEvents data field (json or avro)
 debezium.format.cloudevents.data.serializer.type=json
 ```
