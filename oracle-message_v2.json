@@ -1,0 +1,25 @@
+{
+    "data": {
+        "CUSTOMER_ID": 9.0,
+        "FIRST_NAME": "HEHE.",
+        "LAST_NAME": "Adams",
+        "EMAIL": "carol.adams.296@example.com",
+        "PHONE": "+1-555-1941",
+        "ADDRESS": "100 Elm St",
+        "CITY": "SomeCity",
+        "COUNTRY": "USA",
+        "REGISTRATION_DATE": "2025-12-14T05:57:27Z",
+        "STATUS": "ACTIVE",
+        "CREDIT_LIMIT": 1000.0,
+        "CREATED_AT": "2025-12-14T12:57:27.916713Z",
+        "UPDATED_AT": "2025-12-18T09:30:31.300287Z",
+        "__deleted": "false",
+        "__op": "u",
+        "__ts_ns": 1766025083628085047,
+        "__source_ts_ns": 1766025031000000000,
+        "__source_db": "XEPDB1",
+        "__source_schema": "DATAUSER",
+        "__source_table": "CUSTOMERS",
+        "__source_scn": "5603294"
+    }
+}
